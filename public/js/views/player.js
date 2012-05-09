@@ -5,16 +5,18 @@ var Player = Backbone.View.extend({
 	el: '#player',
 
 	events: {
-		'click .play': 'play'
+		'click .play': 'playPause'
 	},
 
 	initialize: function() {
 		this.$lists = [this.$el.find('.playListA ul'),
 									 this.$el.find('.playListB ul')];
-		this.currentTrack = null;
-		this.songs = [];
-
-		// this.render();
+		this.currentSound = null;
+		this.sounds = [];
+		this.soundsLoaded = false;
+		this.playing = false;
+		this.$songs = [];
+		this.$button = this.$el.find('button.play i')
 	},
 
 	render: function() {
@@ -24,88 +26,81 @@ var Player = Backbone.View.extend({
 			var li = $('<li>');
 			li.text(track.get('title'));
 			list.append(li);
+			this.$songs.push(li);
 		}, this);
 	},
 
-	play: function(evt) {
-		if (this.currentTrack) {
-			currentTrack.play();
-			return;
-		}
-		var self = this;
+	playPause: function(evt) {
+		if (this.playing)
+			this.pause();
+		else
+			this.play();
+	},
+
+	play: function() {
+		this.playing = true;
 		$el = this.$el;
-		$el.addClass('loading');
+		this.$el.addClass('playing');
+		this.$button.removeClass('icon-play').addClass('icon-pause');
 
-		var tracks = this.model.get('playlist');
-		var left = tracks.length;
-
-		tracks.forEach(function(track, i) {
-				$.getJSON('/play/' + track.get('id'), function(data) {
-					var sound = soundManager.createSound({
-						id: track.get('id'),
-						url: data.url,
-						autoLoad: true,
-						autoPlay: i === 0,
-						whileloading: onprogress || function(){},
-						onfinish: function() {
-							console.log('finished playing: ' + i);
-							$el.removeClass('playing');
-							if (i + 1 < self.songs.length)
-								self.songs[i + 1].play();
-						},
-						onpause: function() {
-							$el.removeClass('playing');
-						},
-						onplay: function() {
-							var list = self.$lists[track.get('side')];
-							var el = list.find('li:nth-child(' + (i + 1) + ')').addClass('playing');
-							console.log(el);
-
-							console.log('playing: ' + i);
-							//App.pushPlay(snd);
-							$el.removeClass('loading').addClass('playing');
-							//this.setPosition(29 * 1000);
-						},
-						onresume: function() {
-							App.pushPlay(snd);
-							$el.addClass('playing');
-						},
-						onstop: function() {
-							$el.removeClass('playing');
-						},
-						onload: function() {
-							console.log('loaded: ' + i);
-							console.log('left: ' + left);
-							left--;
-							console.log('loaded all songs');
-						}
-					});
-					self.songs.push(sound);
-			});
-		}, this);
+		if (this.currentSound) {
+			this.currentSound.play();
+		} else {
+			var tracks = this.model.get('playlist');
+			this.loadSounds(tracks);
+			this.sounds[0].play();
+		}
 	},
+
 	pause: function() {
-
+		this.playing = false;
+		this.$button.removeClass('icon-pause').addClass('icon-play');
+		if (this.currentSound)
+			this.currentSound.pause();
+		this.$el.removeClass('playing');
 	},
 
-	open: function(evt) {
+	loadSounds: function(tracks) {
+		// Imediately fetch the first song.  Once that one starts playing it will
+		// fetch the next song and so on...
 		var self = this;
-		function done() {
-			self.$el.removeClass('loading');
-		}
-		var needle = this.$input.val();
-		self.$el.addClass('loading');
-		console.log('new search for: ' + needle);
-		if (needle == '') {
-			done();
-			self.collection.reset();
-			return;
-		}
-		$.getJSON('/search/' + encodeURI(needle), function(data) {
-			console.log('got search back');
-			self.collection.reset(data);
-			done();
+		var totalTracks = tracks.length;
+		tracks.forEach(function(track, index) {
+			var sound = soundManager.createSound({
+				id: track.get('id'),
+				url: track.get('previewurl'),
+				autoLoad: false,
+				autoPlay: false,
+				whileloading: function(){},
+				onfinish: function() {
+					self.$songs[index].removeClass('playing');
+					var next = index + 1;
+					if (next < totalTracks)
+						self.sounds[next].play();
+					else {
+						self.currentSound = self.sounds[0];
+						self.pause();
+					}
+				},
+				onpause: function() {},
+				onplay: function() {
+					self.currentSound = self.sounds[index];
+					self.$el.find('.playing').removeClass('playing');
+					self.$songs[index].addClass('playing');
+
+					var next = index + 1;
+					if (next < totalTracks)
+						self.sounds[next].load();
+				},
+				onresume: function() {
+					self.$songs[index].addClass('playing');
+				},
+				onstop: function() {
+					self.$songs[index].removeClass('playing');
+				},
+				onload: function() {}
+			});
+			self.sounds.push(sound);
 		});
 	}
-
 });
