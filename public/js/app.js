@@ -65,13 +65,15 @@ var Application = Backbone.Router.extend({
 						id: 3766427,
 						title: 'Human',
 						artist: 'The Killers',
-						side: 0
+						side: 0,
+						previewurl: 'http://previews.7digital.com/clips/826/3766427.clip.mp3'
 					},
 					{
 						id: 15465040,
 						title: 'Smells like teen Spirit',
 						artist: 'Nirvana',
-						side: 1
+						side: 1,
+						previewurl: 'http://previews.7digital.com/clips/826/15465040.clip.mp3'
 					}
 				]
 			})
