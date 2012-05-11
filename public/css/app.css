@@ -38,6 +38,9 @@
   bottom: 0;
   font-size: small;
 }
+.playlist li:last-child {
+  border-bottom: 0;
+}
 .playlist [data-state="paused"] .play {
   display: inline-block;
 }

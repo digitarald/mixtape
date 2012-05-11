@@ -7,16 +7,27 @@
 			.row#mixtape
 				.span12
 					input(type='text', placeholder='Name your Mixtape …').span12
+					hr
 					ul.playlist
-					button.search.btn Add Track
-					button.publish.btn Publish
+					hr
+					.row
+						.span12
+							.pull-right
+								button.search.btn
+									i.icon-search 
+									| &#160;Search for Tracks
+								button.publish.btn 
+									i.icon-share
+									| &#160;Share
+							div(style='clear:both')
 
 			.row#search
 				.span12
-					h4
+					h3
 						div.pull-right
 							button.btn.small.back Back
 						| Find your track
+					hr
 					input(type='search', placeholder='Song title or artist …').span12
 					ul.playlist
 
