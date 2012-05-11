@@ -138,9 +138,9 @@ var Application = Backbone.Router.extend({
 
 	},
 
-	pushPlay: function(snd) {
+	setSnd: function(snd) {
 		if (this.snd) {
-			this.snd.stop();
+			this.snd.pause();
 		}
 		this.snd = snd;
 	}

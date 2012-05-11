@@ -11,7 +11,7 @@ var Track = Backbone.Model.extend({
 
 		var self = this;
 
-		$el.addClass('loading');
+		$el.attr('data-state', 'loading');
 
 		$.getJSON('/play/' + this.get('id'), function(data) {
 
@@ -20,25 +20,28 @@ var Track = Backbone.Model.extend({
 				url: data.url,
 				whileloading: onprogress || function(){},
 				onfinish: function() {
-					$el.removeClass('playing');
+					App.setSnd(null);
+					$el.attr('data-state', 'paused');
 				},
 				onpause: function() {
-					$el.removeClass('playing');
+					App.setSnd(null);
+					$el.attr('data-state', 'paused');
 				},
 				onplay: function() {
-					App.pushPlay(snd);
-					$el.removeClass('loading').addClass('playing');
+					App.setSnd(snd);
+					$el.attr('data-state', 'playing');
 				},
 				onresume: function() {
-					App.pushPlay(snd);
-					$el.addClass('playing');
+					App.setSnd(snd);
+					$el.attr('data-state', 'playing');
 				},
 				onstop: function() {
-					$el.removeClass('playing');
+					App.setSnd(null);
+					$el.attr('data-state', 'paused');
 				}
 			});
 
-			self.set('snd', snd);
+			self.set('snd', snd, {silent: true});
 
 			cb(snd);
 		});

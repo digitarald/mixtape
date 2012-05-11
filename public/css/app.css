@@ -19,7 +19,7 @@
   margin: 0;
 }
 .playlist li {
-  padding: 0 5px 0 50px;
+  padding: 0 5px;
   border-bottom: 1px solid #eee;
   position: relative;
   cursor: pointer;
@@ -29,26 +29,8 @@
   font-size: 18px;
   line-height: 27px;
 }
-.playlist li .play {
-  border: none;
-  background: url("http://png-1.findicons.com/files//icons/1722/gnome_2_18_icon_theme/24/media_playback_start.png") no-repeat center;
-  text-indent: -9999px;
-  overflow: hidden;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 50px;
-}
-.playlist li .add {
-  border: none;
-  background: #00f;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  width: 50px;
-  display: none;
+.playlist li button {
+  margin: 6px;
 }
 .playlist li .duration {
   position: absolute;
@@ -56,11 +38,27 @@
   bottom: 0;
   font-size: small;
 }
-.playlist .loading .play {
-  background-image: url("/img/load.gif");
+.playlist [data-state="paused"] .play {
+  display: inline-block;
 }
-.playlist .playing .play {
-  background-image: url("http://png-1.findicons.com/files//icons/1722/gnome_2_18_icon_theme/24/media_playback_pause.png");
+.playlist [data-state="paused"] .pause,
+.playlist [data-state="paused"] .loading {
+  display: none;
+  display: none;
+}
+.playlist [data-state="loading"] .loading {
+  display: inline-block;
+}
+.playlist [data-state="loading"] .play,
+.playlist [data-state="loading"] .pause {
+  display: none;
+}
+.playlist [data-state="playing"] .pause {
+  display: inline-block;
+}
+.playlist [data-state="playing"] .play,
+.playlist [data-state="playing"] .loading {
+  display: none;
 }
 #search li .add {
   display: block;
