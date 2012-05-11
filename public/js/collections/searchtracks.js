@@ -1,6 +1,8 @@
 
 var SearchTracks = Backbone.Collection.extend({
 
-	model: Track
+	model: Track,
+
+	url: '/searchResults'
 
 });
