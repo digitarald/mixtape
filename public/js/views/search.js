@@ -19,7 +19,6 @@ var Search = Backbone.View.extend({
 		var list = this.$list;
 		list.empty();
 		this.collection.forEach(function(track) {
-			console.log(track.get('id'));
 			var view = new TrackEntry({model: track});
 			view.render();
 			list.append(view.$el);
@@ -35,19 +34,15 @@ var Search = Backbone.View.extend({
 		function done() {
 			self.$el.removeClass('loading');
 		}
-		var needle = this.$input.val();
 		self.$el.addClass('loading');
-		console.log('new search for: ' + needle);
+
+		var needle = this.$input.val();
 		if (needle == '') {
 			done();
 			self.collection.reset();
 			return;
 		}
-		$.getJSON('/search/' + encodeURI(needle), function(data) {
-			console.log('got search back');
-			self.collection.reset(data);
-			done();
-		});
+		this.collection.fetch({data: { q: needle }, success: done});
 	},
 
 	reset: function() {

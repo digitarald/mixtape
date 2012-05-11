@@ -136,9 +136,9 @@ app.get('/play/:id', function play(req, res) {
 });
 
 
-app.get('/search/:q', function search(req, res) {
+app.get('/searchResults/:q?', function search(req, res) {
 
-	query = (req.params.q || '').trim();
+	query = (req.param('q') || '').trim();
 
 	if (!query.length) {
 		res.json([]);
