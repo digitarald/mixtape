@@ -5,7 +5,8 @@ var Search = Backbone.View.extend({
 	el: '#search',
 
 	events: {
-		'change': 'search'
+		'change': 'search',
+		'click .back': 'back'
 	},
 
 	initialize: function() {
@@ -48,6 +49,10 @@ var Search = Backbone.View.extend({
 	reset: function() {
 		this.collection.reset();
 		this.$input.val('');
+	},
+
+	back: function() {
+		App.navigate('', {trigger: true});
 	}
 
 });
