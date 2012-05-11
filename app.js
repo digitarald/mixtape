@@ -239,4 +239,18 @@ app.get('/channel', function(req, res) {
 
 });
 
+app.get('/manifest.webapp', function(req, res) {
+
+	res.send(JSON.stringify({
+		version: '0.1',
+		name: 'Mixtape Stories',
+		description: 'Every mix tape is a story. Put them together and they become the soundtrack of your life.',
+		icons: {
+			'256': '/img/icon-256.png'
+		}
+	}), {
+		'Content-Type': 'application/x-web-app-manifest+json'
+	});
+
+});
 
