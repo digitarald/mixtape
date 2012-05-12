@@ -23,6 +23,8 @@ var Editor = Backbone.View.extend({
 
 		this.$list = this.$el.find('.playlist');
 
+		this.$publish = this.$el.find('.publish');
+
 	},
 
 	render: function() {
@@ -40,6 +42,10 @@ var Editor = Backbone.View.extend({
 
 		});
 
+		if (this.collection.length)
+			this.$publish.removeClass('disabled');
+		else
+			this.$publish.addClass('disabled');
 
 	},
 
