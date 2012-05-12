@@ -28,6 +28,7 @@ var Editor = Backbone.View.extend({
 			this.$('.playlistB')
 		];
 
+		this.$publish = this.$el.find('.publish');
 	},
 
 	updateModel: function() {
@@ -40,8 +41,6 @@ var Editor = Backbone.View.extend({
 	updateView: function() {
 
 		this.$('input').val(this.model.get('title'));
-
-		this.$publish = this.$el.find('.publish');
 
 	},
 
