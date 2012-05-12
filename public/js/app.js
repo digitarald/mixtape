@@ -54,7 +54,10 @@ var Application = Backbone.Router.extend({
 		this.currentView = null;
 
 		this.publishView = new Publish();
-		this.editorView = new Editor();
+		this.editorView = new Editor({model: new MixedTape({
+				playlist: []
+			})
+		});
 		this.searchView = new Search();
 		this.playerView = new Player({model: new MixedTape({
 				to: 'to',

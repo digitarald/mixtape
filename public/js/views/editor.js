@@ -7,36 +7,56 @@ var Editor = Backbone.View.extend({
 
 	events: {
 		'click .search': 'routeSearch',
-		'click .publish': 'publish'
+		'click .publish': 'publish',
+		'change input': 'updateModel'
 	},
 
-	model: new MixedTape(),
 
-	collection: new MixtapeTracks(),
+	model: new MixedTape(),
 
 	initialize: function() {
 
 		_.bindAll(this);
 
+		this.collection = this.model.get('playlist');
 		this.collection.bind('add', this.add, this);
-		this.collection.bind('change', this.render, this);
 
-		this.$list = this.$el.find('.playlist');
+		this.model.bind('change', this.updateView, this);
+
+		this.$lists = [
+			this.$('.playlistA'),
+			this.$('.playlistB')
+		];
+
+	},
+
+	updateModel: function() {
+
+		var val = this.$('input').val();
+		this.model.set('title', val);
+
+	},
+
+	updateView: function() {
+
+		this.$('input').val(this.model.get('title'));
 
 	},
 
 	render: function() {
 
-		this.$list.html('');
+		this.$lists[0].html('');
+		this.$lists[1].html('');
 
 		var self = this;
+		var side = -1;
 
 		this.collection.each(function(track) {
 
 			var view = new TrackEntry({model: track});
 			view.render();
 
-			self.$list.append(view.$el);
+			self.$lists[track.get('side')].append(view.$el);
 
 		});
 
@@ -45,11 +65,41 @@ var Editor = Backbone.View.extend({
 
 	add: function(track) {
 
-		this.render()
+		var duration = 0, side = 0, sides = [0, 0];
+
+		this.collection.reset(this.collection.filter(function(track) {
+
+			sides[side] = duration;
+
+			duration += Number(track.get('duration'));
+
+			if (duration > 1800) {
+				duration = Number(track.get('duration'));
+				side += 1;
+			}
+			if (side > 1) {
+				return null;
+			}
+
+			track.set('side', side, {silent: true});
+
+			return true;
+
+		}, this), {silent: true});
+
+		this.model.set('sides', sides, {silent: true});
+
+		this.render();
 
 	},
 
 	routeSearch: function(evt) {
+
+		if (!this.activated) {
+			this.activated = true;
+			$('.page-header').animate({height: 0, opacity: 0});
+		}
+
 
 		App.navigate('search', {trigger: true});
 
@@ -57,18 +107,19 @@ var Editor = Backbone.View.extend({
 
 	publish: function() {
 
+		var model = this.model;
+
 		var login = function(response) {
 
 			if (response.status === 'connected') {
 				var uid = response.authResponse.userID;
 				var accessToken = response.authResponse.accessToken;
 
-				App.user = {
-					uid: uid,
-					accessToken: accessToken
-				};
+				$.post('/login', {accessToken: accessToken, mixtape: model.toJSON()}, function(data) {
 
-				console.log('PUBLISH!');
+					console.log('Saved');
+
+				});
 
 				App.navigate('publish', {trigger: true});
 

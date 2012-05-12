@@ -11,9 +11,9 @@ var TrackEntry = Backbone.View.extend({
 	tagName: 'li',
 
 	template: _.template(
-		'<div class="pull-left">' + 
-		'<button class="btn play"><i class="icon-play"></i></button>' + 
-		'<button class="btn loading"><i class="icon-refresh"></i></button>' + 
+		'<div class="pull-left">' +
+		'<button class="btn play"><i class="icon-play"></i></button>' +
+		'<button class="btn loading"><i class="icon-refresh"></i></button>' +
 		'<button class="btn pause"><i class="icon-pause"></i></button>' +
 		'</div>' +
 		'<div class="pull-left"><strong><%= title %></strong><%= artist %></div><div style="clear: both"></div><small class="duration"><%= duration %></small>'), // load jQuery template
@@ -56,7 +56,7 @@ var TrackEntry = Backbone.View.extend({
 
 		evt.stopImmediatePropagation();
 
-		if (this.collection == App.editorView.collection) {
+		if (this.collection == App.editorView.model.get('playlist')) {
 			return;
 		}
 

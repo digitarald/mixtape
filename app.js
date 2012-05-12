@@ -31,6 +31,22 @@ sdigital.configure({
 });
 var tracks = new sdigital.Tracks();
 
+// Usergrid
+
+var OAuth2 = require('oauth').OAuth2;
+
+var apigUrl = 'http://api.usergrid.com/' + process.env.APIG_APP + '/';
+var apig = new OAuth2(process.env.APIG_ID, process.env.APIG_SECRET, apigUrl, 'token', 'token');
+
+var apigToken;
+
+apig.getOAuthAccessToken('', {
+	grant_type: 'client_credentials'
+}, function(err, access_token) {
+
+	apigToken = access_token;
+
+});
 
 // Configure express
 
@@ -42,10 +58,12 @@ app.configure(function() {
   app.set('view engine', 'jade');
 
   app.use(express.bodyParser());
+  app.use(express.cookieParser());
   app.use(express.methodOverride());
-  app.use(app.router);
 
-  // app.use(express.session({ secret: process.env.SESSION_SECRET || 'secret123' }));
+  app.use(express.session({secret: process.env.SESSION_SECRET || 'secret123'}));
+
+  app.use(app.router);
 
   // Stylus
   app.use(stylus.middleware({
@@ -116,12 +134,71 @@ var index = function index(req, res) {
 
 };
 
+var saveMixtape = function(req, res, model) {
+
+	request.post(apigUrl + 'mixtapes?' + qs.stringify({
+		access_token: req.session.access_token
+	}), {
+		body: JSON.stringify(model),
+		headers: {
+			'content-type': 'application/json'
+		}
+	}, function(err, r, data) {
+
+		console.log(data);
+
+		res.json(true);
+
+	});
+
+};
+
 app.get('/', index);
 
 app.get('/search', index);
 app.get('/publish', index);
 app.get('/player', index);
 app.get('/mix/:id', index);
+
+app.post('/login', function(req, res) {
+
+	request.get(apigUrl + 'auth/facebook?' + qs.stringify({
+		fb_access_token: req.body.accessToken || null
+	}), function(err, r, data) {
+
+		data = JSON.parse(data);
+
+		req.session.access_token = data.access_token;
+		req.session.user_id = data.user.uuid;
+
+		var url = apigUrl + 'users/' + req.session.user_id + '?' + qs.stringify({
+			access_token: req.session.access_token
+		});
+		console.log(url);
+
+		request.put(url, {
+			body: JSON.stringify({
+				activated: true
+			}),
+			headers: {
+				'content-type': 'application/json'
+			}
+		}, function(err, r, data) {
+
+			data = JSON.parse(data);
+			console.log(data);
+
+			if (req.body.mixtape) {
+				saveMixtape(req, res, req.body.mixtape);
+			} else {
+				res.json(true);
+			}
+
+		});
+
+	});
+
+});
 
 app.get('/play/:id', function play(req, res) {
 
@@ -163,11 +240,11 @@ app.get('/searchResults/:q?', function search(req, res) {
 
 			// Nice duration
 			var duration = track.duration;
-			var seconds = String(duration % 60);
-			while (seconds.length < 2) {
-				seconds += '0'
-			}
-			duration = Math.round(duration / 60) + ':' + seconds
+			// var seconds = String(duration % 60);
+			// while (seconds.length < 2) {
+			//	seconds += '0'
+			// }
+			// duration = Math.round(duration / 60) + ':' + seconds
 
 			return {
 				id: track.id,
@@ -177,6 +254,8 @@ app.get('/searchResults/:q?', function search(req, res) {
 				url: track.url,
 				image: track.release.image || null
 			};
+		}).filter(function(track) {
+			return track.duration < 1800
 		});
 
 		cache.search[query] = data;

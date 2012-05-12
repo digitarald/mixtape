@@ -6,7 +6,6 @@
 
   "dependencies": {
     "express":   "*",
-    "faceplate": "*",
     "redis": "*",
     "underscore": "*",
     "jade": "*",
@@ -19,7 +18,9 @@
     "socket.io": "*",
     "7digital-api": "*",
     "async": "*",
-    "querystring": "*"
+    "querystring": "*",
+    "oauth": "*",
+    "restler": "*"
   },
 
   "engines": {
