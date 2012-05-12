@@ -41,6 +41,8 @@ var Editor = Backbone.View.extend({
 
 		this.$('input').val(this.model.get('title'));
 
+		this.$publish = this.$el.find('.publish');
+
 	},
 
 	render: function() {
@@ -60,6 +62,10 @@ var Editor = Backbone.View.extend({
 
 		});
 
+		if (this.collection.length)
+			this.$publish.removeClass('disabled');
+		else
+			this.$publish.addClass('disabled');
 
 	},
 

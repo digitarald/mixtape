@@ -13,12 +13,13 @@ var TrackEntry = Backbone.View.extend({
 	template: _.template(
 		'<div class="pull-left">' +
 		'<button class="btn play"><i class="icon-play"></i></button>' +
-		'<button class="btn loading"><i class="icon-refresh"></i></button>' +
+		'<button class="btn loading"><i class="icon-loading"></i></button>' +
 		'<button class="btn pause"><i class="icon-pause"></i></button>' +
 		'</div>' +
 		'<div class="pull-left"><strong><%= title %></strong><%= artist %></div><div style="clear: both"></div><small class="duration"><%= duration %></small>'), // load jQuery template
 
 	initialize: function() {
+		this.snd = null;
 	},
 
 	render: function(search) {
@@ -32,7 +33,7 @@ var TrackEntry = Backbone.View.extend({
 		evt.stopImmediatePropagation();
 
 		// Loading state?
-		this.model.getSoundMgr(this.$el, function(snd) {
+		this.getSoundMgr(function(snd) {
 
 			snd.play();
 
@@ -44,7 +45,7 @@ var TrackEntry = Backbone.View.extend({
 
 		evt.stopImmediatePropagation();
 
-		this.model.getSoundMgr(this.$el, function(snd) {
+		this.getSoundMgr(function(snd) {
 
 			snd.pause();
 
@@ -64,6 +65,55 @@ var TrackEntry = Backbone.View.extend({
 
 		App.editorView.collection.add(this.model);
 		App.searchView.reset();
+	},
+
+	getSoundMgr: function(cb, onprogress) {
+		var snd = this.snd;
+
+		if (snd) {
+			cb(snd);
+			return;
+		}
+
+		var self = this;
+
+		$el = this.$el;
+		$el.attr('data-state', 'loading');
+
+		var id = this.model.get('id');
+
+		$.getJSON('/play/' + id, function(data) {
+
+			snd = soundManager.createSound({
+				id: id,
+				url: data.url,
+				whileloading: onprogress || function(){},
+				onfinish: function() {
+					App.setSnd(null);
+					$el.attr('data-state', 'paused');
+				},
+				onpause: function() {
+					App.setSnd(null);
+					$el.attr('data-state', 'paused');
+				},
+				onplay: function() {
+					App.setSnd(snd);
+					$el.attr('data-state', 'playing');
+				},
+				onresume: function() {
+					App.setSnd(snd);
+					$el.attr('data-state', 'playing');
+				},
+				onstop: function() {
+					App.setSnd(null);
+					$el.attr('data-state', 'paused');
+				}
+			});
+
+			self.snd = snd;
+
+			cb(snd);
+		});
 	}
 
 });
