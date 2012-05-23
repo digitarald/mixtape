@@ -1,67 +1,165 @@
-.page-header {
-  height: 200px;
-  background: url("/img/mixtape.gif") center no-repeat;
-  -webkit-background-size: contain;
-  -moz-background-size: contain;
-  -o-background-size: contain;
-  background-size: contain;
+@import 'bootstrap.min.css';
+@import 'bootstrap-responsive.min.css';
+body {
+  background: #fff url("/img/light.png");
+}
+article {
+  margin-top: 40px;
+  padding: 0 0 36px;
+}
+footer {
+  padding: 18px 0;
+  text-align: center;
+  color: #999;
+}
+.view-search .brand {
+  display: none;
+}
+.divider {
+  padding: 0 3px;
+}
+.seconds {
+  font-size: 90%;
+}
+.navbar-search {
+  position: relative;
+}
+.navbar-search .search-query {
+  padding-left: 29px;
+}
+.navbar-search .icon-music {
+  position: absolute;
+  top: 7px;
+  left: 11px;
+  background-image: url("/img/glyphicons-halflings-white.png");
+}
+.navbar-search .search-query:focus,
+.navbar-search .search-query.focused {
+  padding-left: 30px;
+}
+.search-query:focus + .icon-music {
+  background-image: url("/img/glyphicons-halflings.png");
+}
+#input-search {
+  font-weight: bold;
+  font-size: 14px;
 }
 #search.loading input {
-  background: url("/img/load.gif") right 50% no-repeat;
+  background-image: url("/img/load.gif");
+  background-position: right 50%;
+  background-repeat: no-repeat;
 }
 #search.loading ul {
   opacity: 0.5;
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
 }
+.playlists {
+  margin-top: 18px;
+  margin-bottom: 36px;
+  padding: 18px 0;
+/*
+	background-color #fff
+	border-radius 18px
+	box-shadow inset 0 0 50px rgba(0, 0, 0, 0.05), 2px 2px 5px rgba(0, 0, 0, 0.25)
+	*/
+  font-family: 'Indie Flower';
+}
+.playlists .playlist-duration {
+  padding-right: 18px;
+  line-height: inherit;
+}
 .playlist {
-  font-family: 'Nothing You Could Do', cursive;
   list-style: none;
   margin: 0;
+  clear: both;
 }
 .playlist li {
-  padding: 0 5px;
+  padding: 9px 6px;
   border-bottom: 1px solid #eee;
   position: relative;
+  -webkit-transition: background-color 300ms ease-in;
+  -moz-transition: background-color 300ms ease-in;
+  -o-transition: background-color 300ms ease-in;
+  -ms-transition: background-color 300ms ease-in;
+  transition: background-color 300ms ease-in;
+  background-color: #fff;
+  display: -webkit-box;
+  display: -moz-box;
+  display: -o-box;
+  display: -ms-box;
+  display: box;
+  -webkit-box-orient: horizontal;
+  -moz-box-orient: horizontal;
+  -ms-box-orient: horizontal;
+  box-orient: horizontal;
   cursor: pointer;
-}
-.playlist li strong {
-  display: block;
   font-size: 18px;
-  line-height: 27px;
+}
+.playlist li:hover {
+  background-color: #ffb;
+}
+.playlist li .meta {
+  -webkit-box-flex: 1;
+  -moz-box-flex: 1;
+  -ms-box-flex: 1;
+  box-flex: 1;
+  line-height: 36px;
+  font-size: 18px;
+  line-height: 36px;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.playlist li .meta em {
+  font-size: 24px;
+  font-style: normal;
 }
 .playlist li button {
-  margin: 6px;
+  margin: 3px;
 }
 .playlist li .duration {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  font-size: small;
+  line-height: 36px;
+}
+.playlist li .control {
+  padding-right: 9px;
 }
 .playlist li:last-child {
   border-bottom: 0;
 }
-.playlist [data-state="paused"] .play {
+.playlist li[data-state="paused"] .play {
   display: inline-block;
 }
-.playlist [data-state="paused"] .pause,
-.playlist [data-state="paused"] .loading {
+.playlist li[data-state="paused"] .pause,
+.playlist li[data-state="paused"] .loading {
   display: none;
   display: none;
 }
-.playlist [data-state="loading"] .loading {
+.playlist li[data-state="loading"] .loading {
   display: inline-block;
 }
-.playlist [data-state="loading"] .play,
-.playlist [data-state="loading"] .pause {
+.playlist li[data-state="loading"] .play,
+.playlist li[data-state="loading"] .pause {
   display: none;
 }
-.playlist [data-state="playing"] .pause {
+.playlist li[data-state="playing"] {
+  background-color: #ff9;
+}
+.playlist li[data-state="playing"] .pause {
   display: inline-block;
 }
-.playlist [data-state="playing"] .play,
-.playlist [data-state="playing"] .loading {
+.playlist li[data-state="playing"] .play,
+.playlist li[data-state="playing"] .loading {
   display: none;
+}
+.empty {
+  color: #999;
+  display: block;
+  text-align: center;
+  font-family: 'Indie Flower';
+  font-style: normal;
+  font-size: 18px;
+  padding: 36px 0;
 }
 #search li .add {
   display: block;

@@ -25,11 +25,12 @@ var sdigital = require('7digital-api');
 
 // 7digital
 
-sdigital.configure({
-	oauthkey: process.env.SDIGITAL_KEY,
-	oauthsecret: process.env.SDIGITAL_SECRET
+var api = sdigital.configure({
+	consumerkey: process.env.SDIGITAL_KEY,
+	consumersecret: process.env.SDIGITAL_SECRET,
+	format: 'json'
 });
-var tracks = new sdigital.Tracks();
+var tracks = new api.Tracks();
 
 // Usergrid
 
@@ -128,7 +129,9 @@ var index = function index(req, res) {
 	res.render('index.jade', {
 		title: 'Mixtape',
 		env: {
-			FB_ID: process.env.FB_ID
+			FB_ID: process.env.FB_ID,
+			facebook_id: req.session.facebook_id || null,
+			mixtape: req.session.mixtape || null
 		}
 	});
 
@@ -145,9 +148,18 @@ var saveMixtape = function(req, res, model) {
 		}
 	}, function(err, r, data) {
 
-		console.log(data);
+		data = JSON.parse(data);
 
-		res.json(true);
+		if (!data || !data.entities) {
+			res.json(null);
+		} else {
+			var id = data.entities[0].uuid;
+
+			// Update also in session
+			model.id = id;
+
+			res.json({id: id});
+		}
 
 	});
 
@@ -163,18 +175,18 @@ app.get('/mix/:id', index);
 app.post('/login', function(req, res) {
 
 	request.get(apigUrl + 'auth/facebook?' + qs.stringify({
-		fb_access_token: req.body.accessToken || null
+		fb_access_token: req.body.token || null
 	}), function(err, r, data) {
 
 		data = JSON.parse(data);
 
 		req.session.access_token = data.access_token;
 		req.session.user_id = data.user.uuid;
+		req.session.facebook_id = data.user.facebook.id;
 
 		var url = apigUrl + 'users/' + req.session.user_id + '?' + qs.stringify({
 			access_token: req.session.access_token
 		});
-		console.log(url);
 
 		request.put(url, {
 			body: JSON.stringify({
@@ -186,10 +198,9 @@ app.post('/login', function(req, res) {
 		}, function(err, r, data) {
 
 			data = JSON.parse(data);
-			console.log(data);
 
-			if (req.body.mixtape) {
-				saveMixtape(req, res, req.body.mixtape);
+			if (req.session.mixtape) {
+				saveMixtape(req, res, req.session.mixtape);
 			} else {
 				res.json(true);
 			}
@@ -197,6 +208,21 @@ app.post('/login', function(req, res) {
 		});
 
 	});
+
+});
+
+
+app.post('/save', function(req, res) {
+
+	var model = JSON.parse(req.body.mixtape);
+
+	req.session.mixtape = model;
+
+	if (req.session.access_token) {
+		saveMixtape(req, res, model);
+	} else {
+		res.json({});
+	}
 
 });
 
@@ -213,9 +239,11 @@ app.get('/play/:id', function play(req, res) {
 });
 
 
-app.get('/searchResults/:q?', function search(req, res) {
+app.get('/service/search', function search(req, res) {
 
-	query = (req.param('q') || '').trim();
+	var query = (req.param('q') || '').trim();
+
+	console.log('QUERY: %s', query);
 
 	if (!query.length) {
 		res.json([]);
@@ -234,24 +262,33 @@ app.get('/searchResults/:q?', function search(req, res) {
 
 		data = data.searchResults.searchResult || []; // JSON, XML style
 
+		var partner_id;
+
 		data = data.map(function(track) {
 
 			track = track.track;
 
+			// Generate buy URL for mobile
+			if (!partner_id && track.url) {
+				partner_id = track.url.match(/partner=(\d+)/)[1]
+			}
+			var url = track.url;
+			if (partner_id) {
+				url = 'http://m.7digital.com/releases/' + track.release.id + '?partner=' + partner_id
+			}
+
 			// Nice duration
-			var duration = track.duration;
-			// var seconds = String(duration % 60);
-			// while (seconds.length < 2) {
-			//	seconds += '0'
-			// }
-			// duration = Math.round(duration / 60) + ':' + seconds
+			var duration = +track.duration;
 
 			return {
-				id: track.id,
+				id: +track.id,
 				artist: track.artist.name,
+				artist_id: +track.artist.id,
 				title: track.title,
+				release: track.release.title,
+				release_id: +track.release.id,
 				duration: duration,
-				url: track.url,
+				url: url,
 				image: track.release.image || null
 			};
 		}).filter(function(track) {

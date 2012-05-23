@@ -12,33 +12,13 @@ var Application = Backbone.Router.extend({
 
 	initialize: function() {
 
-		_(this).defaults(Backbone.Events);
-		this._callbacks = null;
-		this.subscribe = Backbone.Events.on;
-		this.unsubscribe = Backbone.Events.off;
-		this.publish = Backbone.Events.trigger;
+		// Can't disable flash, as we play MP3
+		soundManager.url = '/img/soundmanager2.swf';
+		soundManager.debugMode = false;
 
+		// Facebook
 
-		// Can't disable flash?!
-		soundManager.url = null;
-		soundManager.preferFlash = false;
-
-		window.fbAsyncInit = function() {
-
-			FB.Event.subscribe('auth.login', function(response) {
-				App.subscribe('login');
-			});
-
-			FB.init({
-				appId: env.FB_ID,
-				channelUrl: '/channel',
-				status: true,
-				cookie: true // enable cookies to allow the server to access the session
-			});
-
-			$(document.body).addClass('fb-loaded');
-
-		};
+		window.fbAsyncInit = this.fbInit;
 
 		(function(d){
 			var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
@@ -54,12 +34,13 @@ var Application = Backbone.Router.extend({
 		this.currentView = null;
 
 		this.publishView = new Publish();
-		this.editorView = new Editor({model: new MixedTape({
+		this.editorView = new Editor({model: new MixedTape(env.mixtape || {
 				playlist: []
 			})
 		});
 		this.searchView = new Search();
-		this.playerView = new Player({model: new MixedTape({
+
+		this.playerView = new Player({model: env.mixtape || new MixedTape({
 				to: 'to',
 				from: 'from',
 				title: 'title',
@@ -89,7 +70,73 @@ var Application = Backbone.Router.extend({
 
 		this.container = $('#main');
 
-		Backbone.history.start({pushState: true});
+		$(document.body).on('focus', '#input-search', function(evt) {
+			App.navigate('search', {trigger: true});
+		});
+
+		setTimeout(function() {
+			Backbone.history.start({pushState: true});
+		}, 10);
+
+	},
+
+	fbInit: function() {
+
+		FB.init({
+			appId: env.FB_ID,
+			channelUrl: '/channel',
+			status: true,
+			cookie: true // enable cookies to allow the server to access the session
+		});
+
+		FB.Event.subscribe('auth.statusChange', function(response) {
+
+			if (response.authResponse) {
+
+				FB.api('/me', function(me){
+
+					App.user = {
+						uid: response.authResponse.userID,
+						token: response.authResponse.accessToken,
+						me: me
+					};
+
+					if (env.facebook_id != App.user.uid) {
+						$.post('/login', {token: App.user.token});
+					}
+
+					App.trigger('login', App.user);
+
+					$('#status-logged-in').text(App.user.me.name);
+
+				});
+
+			} else if (App.user) {
+
+				$.post('/logout', function() {
+					App.refresh();
+				});
+
+				App.trigger('logout');
+
+				App.user = null;
+			}
+
+		});
+
+		$(document.body).addClass('fb-loaded');
+
+	},
+
+	login: function(cb) {
+
+		if (App.user) {
+			cb(null, App.user);
+		} else {
+			FB.login(function() {
+				cb(null, App.user || null);
+			});
+		}
 
 	},
 
@@ -97,24 +144,20 @@ var Application = Backbone.Router.extend({
 
 		if (this.currentView) {
 			this.currentView.$el.hide();
+			this.currentView.trigger('blur');
+
+			$(document.body).removeClass('view-' + (this.currentView.$el.attr('id') || ''));
 		}
 
 		to.render(this.container);
 
+		$(document.body).addClass('view-' + (to.$el.attr('id') || ''));
+		to.trigger('focus');
+
 		to.$el.fadeIn();
 		to.$el.show();
 
-		if (to.focus) {
-			to.focus();
-		}
-
 		this.currentView = to;
-	},
-
-	login: function() {
-
-		this.changeView(this.loginView);
-
 	},
 
 	search: function() {

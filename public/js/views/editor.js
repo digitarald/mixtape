@@ -23,9 +23,13 @@ var Editor = Backbone.View.extend({
 
 		this.model.bind('change', this.updateView, this);
 
-		this.$lists = [
-			this.$('.playlistA'),
-			this.$('.playlistB')
+		this.$sides = [
+			this.$('.side-a .playlist'),
+			this.$('.side-b .playlist')
+		];
+		this.$blanks = [
+			this.$('.side-a .empty'),
+			this.$('.side-b .empty')
 		];
 
 		this.$publish = this.$el.find('.publish');
@@ -46,8 +50,11 @@ var Editor = Backbone.View.extend({
 
 	render: function() {
 
-		this.$lists[0].html('');
-		this.$lists[1].html('');
+		this.$sides[0].html('');
+		this.$sides[1].html('');
+
+		this.$blanks[0].hide();
+		this.$blanks[1].hide();
 
 		var self = this;
 		var side = -1;
@@ -57,14 +64,28 @@ var Editor = Backbone.View.extend({
 			var view = new TrackEntry({model: track});
 			view.render();
 
-			self.$lists[track.get('side')].append(view.$el);
+			self.$sides[track.get('side')].append(view.$el);
 
 		});
 
-		if (this.collection.length)
+		// Update duration for sides
+		var sides = this.model.get('sides');
+
+		this.$('.side-a .playlist-duration span').html(TrackEntry.niceDuration(1800 - sides[0]));
+		this.$('.side-b .playlist-duration span').html(TrackEntry.niceDuration(1800 - sides[1]));
+
+		if (!sides[0]) {
+			this.$blanks[0].show();
+		}
+		if (!sides[1]) {
+			this.$blanks[1].show();
+		}
+
+		if (this.collection.length) {
 			this.$publish.removeClass('disabled');
-		else
+		} else {
 			this.$publish.addClass('disabled');
+		}
 
 	},
 
@@ -73,8 +94,6 @@ var Editor = Backbone.View.extend({
 		var duration = 0, side = 0, sides = [0, 0];
 
 		this.collection.reset(this.collection.filter(function(track) {
-
-			sides[side] = duration;
 
 			duration += Number(track.get('duration'));
 
@@ -86,6 +105,8 @@ var Editor = Backbone.View.extend({
 				return null;
 			}
 
+			sides[side] = duration;
+
 			track.set('side', side, {silent: true});
 
 			return true;
@@ -93,6 +114,8 @@ var Editor = Backbone.View.extend({
 		}, this), {silent: true});
 
 		this.model.set('sides', sides, {silent: true});
+
+		this.model.save();
 
 		this.render();
 
@@ -102,9 +125,8 @@ var Editor = Backbone.View.extend({
 
 		if (!this.activated) {
 			this.activated = true;
-			$('.page-header').animate({height: 0, opacity: 0});
+			// $('header').animate({height: 0, opacity: 0});
 		}
-
 
 		App.navigate('search', {trigger: true});
 
@@ -112,45 +134,10 @@ var Editor = Backbone.View.extend({
 
 	publish: function() {
 
-		var model = this.model;
+		App.login(function(err, user) {
 
-		var login = function(response) {
-
-			if (response.status === 'connected') {
-				var uid = response.authResponse.userID;
-				var accessToken = response.authResponse.accessToken;
-
-				$.post('/login', {accessToken: accessToken, mixtape: model.toJSON()}, function(data) {
-
-					console.log('Saved');
-
-				});
-
+			if (user) {
 				App.navigate('publish', {trigger: true});
-
-			} else if (response.status === 'not_authorized') {
-				alert('Sorry, you need to authenticate!')
-			} else {
-				alert('Sorry, try again!')
-			}
-		};
-
-		FB.getLoginStatus(function(response) {
-
-			if (response.status === 'connected') {
-
-				login(response);
-
-			} else {
-
-				FB.login(function() {
-					FB.getLoginStatus(function(response) {
-
-						login(response);
-
-					});
-				});
-
 			}
 
 		});

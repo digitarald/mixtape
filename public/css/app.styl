@@ -1,80 +1,170 @@
 @import 'nib'
+@import 'bootstrap.min.css'
+@import 'bootstrap-responsive.min.css'
 
-.page-header
+body
+	background #fff url(/img/light.png)
 
-	height 200px
-	background url(/img/mixtape.gif) center no-repeat
-	background-size contain
+article
+
+	margin-top 40px
+	padding 0 0 36px
+
+footer
+	padding 18px 0
+	text-align center
+	color #999
+
+.view-search .brand
+	display none
+
+.divider
+	padding 0 3px
+.seconds
+	font-size 90%
+
+.navbar-search
+	position: relative
+
+.navbar-search .search-query
+	padding-left: 29px;
+
+.navbar-search .icon-music
+	position: absolute
+	top: 7px
+	left: 11px
+	background-image: url(/img/glyphicons-halflings-white.png)
+
+.navbar-search .search-query:focus, .navbar-search .search-query.focused
+	padding-left: 30px;
+
+.search-query:focus + .icon-music
+	background-image: url(/img/glyphicons-halflings.png)
+
+#input-search
+
+	font-weight bold
+	font-size 14px
 
 #search
 
 	&.loading
 
 		input
-			background url(/img/load.gif) right 50% no-repeat
+			background-image url(/img/load.gif)
+			background-position right 50%
+			background-repeat no-repeat
 
 		ul
 			opacity 0.5
 
 
-.playlist
+.playlists
 
-	font-family: 'Nothing You Could Do', cursive
+	margin-top 18px
+	margin-bottom 36px
+	padding 18px 0
+
+	/*
+	background-color #fff
+	border-radius 18px
+	box-shadow inset 0 0 50px rgba(0, 0, 0, 0.05), 2px 2px 5px rgba(0, 0, 0, 0.25)
+	*/
+
+	font-family: 'Indie Flower'
+
+	.playlist-duration
+
+		padding-right 18px
+		line-height inherit
+
+.playlist
 
 	list-style none
 	margin 0
+	clear both
 
 	li
-		padding 0 5px
+		padding 9px 6px
 		border-bottom 1px solid #eee
 		position relative
+		transition background-color 300ms ease-in
+		background-color #fff
+
+		display box
+		box-orient horizontal
 
 		cursor pointer
+		font-size 18px
 
-		strong
-			display block
+		&:hover
+			background-color #ffffbb
+
+		.meta
+			box-flex 1
+			line-height 36px
 			font-size 18px
-			line-height 27px
+			line-height 36px
+			letter-spacing 1px
+			white-space no-wrap
+			overflow hidden
+			text-overflow ellipsis
+
+			em
+				font-size 24px
+				font-style normal
 
 		button
-			margin: 6px
+			margin 3px
 
 		.duration
-			position absolute
-			right 0
-			bottom 0
-			font-size small
-	
-	li:last-child
-			border-bottom 0
+			line-height 36px
 
-	[data-state="paused"]
-		.play
-			display inline-block
+		.control
+			padding-right 9px
 
-		.pause
-		.loading
-			display none
-			display none
-	
-	[data-state="loading"]
+		&:last-child
+				border-bottom 0
 
-		.loading
-			display inline-block
+		&[data-state="paused"]
+			.play
+				display inline-block
 
-		.play
-		.pause
-			display none
+			.pause
+			.loading
+				display none
+				display none
 
-	[data-state="playing"]
+		&[data-state="loading"]
 
-		.pause
-			display inline-block
+			.loading
+				display inline-block
 
-		.play
-		.loading
-			display none
-			
+			.play
+			.pause
+				display none
+
+		&[data-state="playing"]
+
+			background-color #ffff99
+
+			.pause
+				display inline-block
+
+			.play
+			.loading
+				display none
+
+.empty
+	color #999999
+	display block
+	text-align center
+	font-family 'Indie Flower'
+	font-style normal
+	font-size 18px
+	padding 36px 0
+
+
 
 #search
 
@@ -102,7 +192,7 @@
 
 #player
 	li.playing
-		font-weight: bold;
+		font-weight bold
 
 .icon-loading
 	background url(/img/load.gif)

@@ -1,60 +1,74 @@
-.container
-	.content
-		.page-header
 
-		#main
+article#main
 
-			.row#mixtape
-				.span12
+	.container#mixtape
+
+		.row.playlists
+			.span6.side.side-a
+				h2
+					small.playlist-duration.pull-right <span>0</span> left
+					| Side A
+				ul.playlist
+				em.empty Search tracks to add them here!
+			.span6.side.side-b
+				h2
+					small.playlist-duration.pull-right <span>0</span> left
+					| Side B
+
+				ul.playlist
+				em.empty Put your b-sides here!
+		.row
+			.span12
+				.control-group
 					input(type='text', placeholder='Name your Mixtape …').span12
-					hr
-					h6 A
-					ul.playlist.playlistA
-					h6 B
-					ul.playlist.playlistB
-					hr
-					.row
-						.span12
-							.pull-right
-								button.search.btn
-									i.icon-search
-									| &#160;Search for Tracks
-								button.publish.btn
-									i.icon-share
-									| &#160;Share
-							div(style='clear:both')
+				.form-actions
+					button.search.btn
+						i.icon-search
+						| &#160;Search for Tracks
+					button.publish.btn.pull-right
+						i.icon-share
+						| &#160;Share
 
-			.row#search
-				.span12
-					h4
-						button.pull-right.btn.back Back
-						| Find your track
-					hr
-					input(type='search', placeholder='Type a song title or artist and press Enter …').span12
+	.container#search
+
+		.row
+			.span12
+				p.help-block.
+					Need a spark? Search for <a href="#" id="preset-search">X<a>. <a href="#" id="preset-reset">Not good</a>?
+				.playlists
 					ul.playlist
+				.alert.intro
+					strong The search begins!&#160;
+					| Start the journey by typing an artist, album or song title …
+				.alert.alert-info.no-result
+					strong Bummer, no results.&#160;
+					| Try a different search term or remove stuff to broaden search …
 
+	.container#publish
 
-			.row#publish
-				.span12
-					h4 Dedicate via SMS
-					form#sms-form(action='#', method='get')
-						input(type='tel', placeholder='(555) SMS-HERE …').span12
-					h4 Dedicate via Facebook
-					ul#faces
+		.row
+			.span12
+				h4 Dedicate via SMS
+				form#sms-form(action='#', method='get')
+					input(type='tel', placeholder='(555) SMS-HERE …').span12
+				h4 Dedicate via Facebook
+				ul#faces
 
-			.row#player
-				.span12
-					h2 Player
-					button.btn.play
-						i.icon-play
-					.row
-						.info.span12
-							.title
-							.to
-							.from
-						.playListA.span6
-							h3 Side A
-							ul
-						.playListB.span6
-							h3 Side B
-							ul
+	.container#player
+
+		.row
+			.span12
+				h2 Player
+				button.btn.play
+					i.icon-play
+				.row
+					.info.span12
+						.title
+						.to
+						.from
+					.playList-a.span6
+						h3 Side A
+						ul
+					.playList.span6
+						h3 Side B
+						ul

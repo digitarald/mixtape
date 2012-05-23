@@ -2,14 +2,30 @@
 html
 	head
 		title= title
-		link(rel='stylesheet', href='/css/bootstrap.min.css')
-		link(rel='stylesheet', href='/css/bootstrap-responsive.min.css')
 		link(rel='stylesheet', href='/css/app.css')
-		link(href='http://fonts.googleapis.com/css?family=Nothing+You+Could+Do', rel='stylesheet')
-		meta(name='viewport', content='width=device-width, initial-scale=1.0')
+		link(href='http://fonts.googleapis.com/css?family=Indie+Flower', rel='stylesheet')
+		meta(name='viewport', content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no')
 
 	body
+
+		header
+
+			nav.navbar.navbar-fixed-top
+				.navbar-inner
+					.container
+						a.brand(href='/') Mixtape Stories
+
+						form.navbar-search.pull-right
+							input#input-search.search-query.span4(type='search', placeholder='Song, artist or album …')
+							.icon-music
+
 		| !{body}
+
+		footer.container
+			.row
+				.span12
+					span Copyright 2012 by mixtapestory.com.&#160;
+					a#status-logged-in(href='#')
 
 		script
 			var env = !{JSON.stringify(env)};

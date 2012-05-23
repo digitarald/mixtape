@@ -13,11 +13,14 @@ var Publish = Backbone.View.extend({
 		this.$input = this.$el.find('#sms-form input');
 		this.$faces = this.$el.find('#faces');
 
-		self.friends = []
+		self.friends = [];
+
+		this.on('focus', this.focus, this);
 
 	},
 
 	focus: function() {
+
 		var self = this;
 
 		if (window.FB) {

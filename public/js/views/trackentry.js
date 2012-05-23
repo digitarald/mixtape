@@ -11,12 +11,13 @@ var TrackEntry = Backbone.View.extend({
 	tagName: 'li',
 
 	template: _.template(
-		'<div class="pull-left">' +
-		'<button class="btn play"><i class="icon-play"></i></button>' +
-		'<button class="btn loading"><i class="icon-loading"></i></button>' +
-		'<button class="btn pause"><i class="icon-pause"></i></button>' +
+		'<div class="control">' +
+			'<button class="btn play"><i class="icon-play"></i></button>' +
+			'<button class="btn loading"><i class="icon-loading"></i></button>' +
+			'<button class="btn pause"><i class="icon-pause"></i></button>' +
 		'</div>' +
-		'<div class="pull-left"><strong><%= title %></strong><%= artist %></div><div style="clear: both"></div><small class="duration"><%= duration %></small>'), // load jQuery template
+		'<div class="meta"><em><%= title %></em> by <%= artist %></div>' +
+		'<div class="side"><small class="duration"><%= TrackEntry.niceDuration(duration) %></small></div>'), // load jQuery template
 
 	initialize: function() {
 		this.snd = null;
@@ -30,7 +31,8 @@ var TrackEntry = Backbone.View.extend({
 	},
 
 	play: function(evt) {
-		evt.stopImmediatePropagation();
+
+		if (evt) evt.stopImmediatePropagation();
 
 		// Loading state?
 		this.getSoundMgr(function(snd) {
@@ -43,11 +45,11 @@ var TrackEntry = Backbone.View.extend({
 
 	pause: function(evt) {
 
-		evt.stopImmediatePropagation();
+		if (evt) evt.stopImmediatePropagation();
 
 		this.getSoundMgr(function(snd) {
 
-			snd.pause();
+			snd.stop();
 
 		});
 
@@ -58,6 +60,9 @@ var TrackEntry = Backbone.View.extend({
 		evt.stopImmediatePropagation();
 
 		if (this.collection == App.editorView.model.get('playlist')) {
+
+			this.$el.find('button:visible').trigger('click');
+
 			return;
 		}
 
@@ -117,3 +122,11 @@ var TrackEntry = Backbone.View.extend({
 	}
 
 });
+
+TrackEntry.niceDuration = function(duration) {
+	var seconds = String(duration % 60);
+	while (seconds.length < 2) {
+		seconds += '0';
+	}
+	return '<span class="minutes">' + Math.round(duration / 60) + '</span><span class="divider">:</span><span class="seconds">' + seconds + '</span>';
+}

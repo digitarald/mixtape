@@ -9,8 +9,11 @@ var Player = Backbone.View.extend({
 	},
 
 	initialize: function() {
-		this.$lists = [this.$el.find('.playListA ul'),
-									 this.$el.find('.playListB ul')];
+		this.$lists = [
+			this.$el.find('.playList-a ul'),
+			this.$el.find('.playList-b ul')
+		];
+
 		this.currentSound = null;
 		this.sounds = [];
 		this.soundsLoaded = false;
@@ -21,6 +24,7 @@ var Player = Backbone.View.extend({
 
 	render: function() {
 		var tracks = this.model.get('playlist');
+
 		tracks.forEach(function(track) {
 			var list = this.$lists[track.get('side')];
 			var li = $('<li>');
@@ -39,7 +43,7 @@ var Player = Backbone.View.extend({
 
 	play: function() {
 		this.playing = true;
-		$el = this.$el;
+
 		this.$el.addClass('playing');
 		this.$button.removeClass('icon-play').addClass('icon-pause');
 
@@ -55,8 +59,10 @@ var Player = Backbone.View.extend({
 	pause: function() {
 		this.playing = false;
 		this.$button.removeClass('icon-pause').addClass('icon-play');
-		if (this.currentSound)
+
+		if (this.currentSound) {
 			this.currentSound.pause();
+		}
 		this.$el.removeClass('playing');
 	},
 
@@ -65,6 +71,7 @@ var Player = Backbone.View.extend({
 		// fetch the next song and so on...
 		var self = this;
 		var totalTracks = tracks.length;
+
 		tracks.forEach(function(track, index) {
 			var sound = soundManager.createSound({
 				id: track.get('id'),
@@ -74,6 +81,7 @@ var Player = Backbone.View.extend({
 				whileloading: function(){},
 				onfinish: function() {
 					self.$songs[index].removeClass('playing');
+
 					var next = index + 1;
 					if (next < totalTracks)
 						self.sounds[next].play();
@@ -100,6 +108,7 @@ var Player = Backbone.View.extend({
 				},
 				onload: function() {}
 			});
+
 			self.sounds.push(sound);
 		});
 	}
