@@ -143,6 +143,14 @@ footer {
 }
 .playlist li:last-child {
   border-bottom: 0;
+  -webkit-border-radius: 0 0 5px 5px;
+  -moz-border-radius: 0 0 5px 5px;
+  border-radius: 0 0 5px 5px;
+}
+.playlist li:first-child {
+  -webkit-border-radius: 5px 5px 0 0;
+  -moz-border-radius: 5px 5px 0 0;
+  border-radius: 5px 5px 0 0;
 }
 .playlist li[data-state="paused"] .play {
   display: inline-block;
