@@ -3,6 +3,7 @@ var TrackEntry = Backbone.View.extend({
 
 	events: {
 		'click': 'add',
+		'click .remove': 'remove',
 		'click .play': 'play',
 		'click .loading': 'pause',
 		'click .pause': 'pause'
@@ -17,7 +18,8 @@ var TrackEntry = Backbone.View.extend({
 			'<button class="btn pause"><i class="icon-pause"></i></button>' +
 		'</div>' +
 		'<div class="meta"><em><%= title %></em> by <%= artist %></div>' +
-		'<div class="side"><small class="duration"><%= TrackEntry.niceDuration(duration) %></small></div>'), // load jQuery template
+		'<div class="side"><small class="duration"><%= TrackEntry.niceDuration(duration) %></small></div>' + 
+		'<i class="remove icon-remove"></i>'), // load jQuery template
 
 	initialize: function() {
 		this.snd = null;
@@ -70,6 +72,13 @@ var TrackEntry = Backbone.View.extend({
 
 		App.editorView.collection.add(this.model);
 		App.searchView.reset();
+	},
+
+	remove: function(evt) {
+
+		evt.stopImmediatePropagation();
+
+		App.editorView.collection.remove(this.model);
 	},
 
 	getSoundMgr: function(cb, onprogress) {

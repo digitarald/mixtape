@@ -19,7 +19,8 @@ var Editor = Backbone.View.extend({
 		_.bindAll(this);
 
 		this.collection = this.model.get('playlist');
-		this.collection.bind('add', this.add, this);
+		this.collection.bind('add', this.update, this);
+		this.collection.bind('remove', this.update, this);
 
 		this.model.bind('change', this.updateView, this);
 
@@ -89,7 +90,7 @@ var Editor = Backbone.View.extend({
 
 	},
 
-	add: function(track) {
+	update: function(track) {
 
 		var duration = 0, side = 0, sides = [0, 0];
 
