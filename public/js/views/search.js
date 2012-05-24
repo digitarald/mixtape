@@ -110,7 +110,8 @@ var Search = Backbone.View.extend({
 	},
 
 	blur: function() {
-		this.$input.removeClass('span12').addClass('span4')
+		this.$input.removeClass('span12').addClass('span4');
+		this.needle = null;
 	},
 
 	search: function(needle) {
