@@ -53,6 +53,12 @@ footer {
   opacity: 0.5;
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
 }
+#search li {
+  cursor: pointer;
+}
+#search li:hover {
+  background-color: #ffb;
+}
 .playlists {
   margin-top: 18px;
   margin-bottom: 36px;
@@ -74,6 +80,7 @@ footer {
   clear: both;
 }
 .playlist li {
+  font-size: 18px;
   padding: 9px 6px;
   border-bottom: 1px solid #eee;
   position: relative;
@@ -92,11 +99,6 @@ footer {
   -moz-box-orient: horizontal;
   -ms-box-orient: horizontal;
   box-orient: horizontal;
-  cursor: pointer;
-  font-size: 18px;
-}
-.playlist li:hover {
-  background-color: #ffb;
 }
 .playlist li .meta {
   -webkit-box-flex: 1;
