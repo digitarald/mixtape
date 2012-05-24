@@ -7,6 +7,7 @@ var nib = require('nib');
 var request = require('request');
 var qs = require('querystring');
 var sdigital = require('7digital-api');
+var echonest = require('echonest');
 
 // Redis
 
@@ -22,6 +23,12 @@ var sdigital = require('7digital-api');
 
 // mongoose = require('mongoose');
 // mongoose.connect(process.env.MONGOHQ_URL || process.env.MONGOLAB_URI || 'mongodb://localhost/app');
+
+// Echonest
+
+echonest = new echonest.Echonest({
+	api_key: process.env.EN_KEY
+});
 
 // 7digital
 
@@ -242,86 +249,111 @@ app.get('/play/:id', function play(req, res) {
 app.get('/service/search', function search(req, res) {
 
 	var query = (req.param('q') || '').trim();
-
-	console.log('QUERY: %s', query);
+	var start = Number(req.param('s') || 0);
 
 	if (!query.length) {
 		res.json([]);
 		return;
 	}
 
-	var cachehit = cache.search[query] || null;
+	console.log('QUERY: %s', query);
+
+	var cache_key = JSON.stringify([query, start]);
+
+	var cachehit = cache.search[cache_key] || null;
 	if (cachehit) {
 		res.json(cachehit);
-		return
+		return;
 	}
 
-	// 7digital track search API
+	echonest.song.search({
+		bucket: ['id:7digital-US', 'tracks', 'audio_summary'],
+		limit: 'true',
+		results: 25,
+		start: start,
+		combined: query,
+		sort: 'song_hotttnesss-desc' // for better results, hits first
+	}, function(err, data) {
 
-	tracks.search({q: query}, function(err, data) {
+		var idents = [];
 
-		data = data.searchResults.searchResult || []; // JSON, XML style
+		data = (data.songs || []).map(function(song) {
 
-		var partner_id;
+			var release_id = Number(song.tracks[0].foreign_release_id.match(/\d+$/)[0]);
 
-		data = data.map(function(track) {
-
-			track = track.track;
-
-			// Generate buy URL for mobile
-			if (!partner_id && track.url) {
-				partner_id = track.url.match(/partner=(\d+)/)[1]
+			// Remove duplicates
+			var ident = JSON.stringify([song.artist_name, song.title]).toLowerCase();
+			if (ident in idents) {
+				return null;
 			}
-			var url = track.url;
-			if (partner_id) {
-				url = 'http://m.7digital.com/releases/' + track.release.id + '?partner=' + partner_id
-			}
-
-			// Nice duration
-			var duration = +track.duration;
+			idents[ident] = true;
 
 			return {
-				id: +track.id,
-				artist: track.artist.name,
-				artist_id: +track.artist.id,
-				title: track.title,
-				release: track.release.title,
-				release_id: +track.release.id,
-				duration: duration,
-				url: url,
-				image: track.release.image || null
+				id: song.id,
+				artist: song.artist_name,
+				title: song.title,
+				preview_url: song.tracks[0].preview_url || null,
+				image: song.tracks[0].release_image || null,
+				duration: Math.round(song.audio_summary.duration),
+				release_id: release_id,
+				url: 'http://m.7digital.com/releases/' + release_id + '?partner=' + process.env.SIGITAL_PARTNER
 			};
-		}).filter(function(track) {
-			return track.duration < 1800
+		}).filter(function(song) {
+			return song;
 		});
 
-		cache.search[query] = data;
+		cache.search[cache_key] = data;
 
 		res.json(data);
 
 	});
 
-	// nest.song.search({
-	//	combined: query,
-	//	sort: 'song_hotttnesss-desc' // for better results, hits first
-	// }, function(err, data) {
+	return;
 
-	//	data = data.songs || [];
+	// // 7digital track search API
 
-	//	data = data.map(function(song) {
+	// tracks.search({q: query}, function(err, data) {
+
+	//	data = data.searchResults.searchResult || []; // JSON, XML style
+
+	//	var partner_id;
+
+	//	data = data.map(function(track) {
+
+	//		track = track.track;
+
+	//		// Generate buy URL for mobile
+	//		if (!partner_id && track.url) {
+	//			partner_id = track.url.match(/partner=(\d+)/)[1]
+	//		}
+	//		var url = track.url;
+	//		if (partner_id) {
+	//			url = 'http://m.7digital.com/releases/' + track.release.id + '?partner=' + partner_id
+	//		}
+
+	//		// Nice duration
+	//		var duration = +track.duration;
+
 	//		return {
-	//			id: song.id,
-	//			artist: song.artist_name,
-	//			title: song.title
+	//			id: +track.id,
+	//			artist: track.artist.name,
+	//			artist_id: +track.artist.id,
+	//			title: track.title,
+	//			release: track.release.title,
+	//			release_id: +track.release.id,
+	//			duration: duration,
+	//			url: url,
+	//			image: track.release.image || null
 	//		};
+	//	}).filter(function(track) {
+	//		return track.duration < 1800
 	//	});
 
-	//	cache.search[query] = data
+	//	cache.search[query] = data;
 
 	//	res.json(data);
 
 	// });
-
 
 });
 

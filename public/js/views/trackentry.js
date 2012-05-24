@@ -87,38 +87,35 @@ var TrackEntry = Backbone.View.extend({
 
 		var id = this.model.get('id');
 
-		$.getJSON('/play/' + id, function(data) {
-
-			snd = soundManager.createSound({
-				id: id,
-				url: data.url,
-				whileloading: onprogress || function(){},
-				onfinish: function() {
-					App.setSnd(null);
-					$el.attr('data-state', 'paused');
-				},
-				onpause: function() {
-					App.setSnd(null);
-					$el.attr('data-state', 'paused');
-				},
-				onplay: function() {
-					App.setSnd(snd);
-					$el.attr('data-state', 'playing');
-				},
-				onresume: function() {
-					App.setSnd(snd);
-					$el.attr('data-state', 'playing');
-				},
-				onstop: function() {
-					App.setSnd(null);
-					$el.attr('data-state', 'paused');
-				}
-			});
-
-			self.snd = snd;
-
-			cb(snd);
+		snd = soundManager.createSound({
+			id: id,
+			url: this.model.get('preview_url'),
+			whileloading: onprogress || function(){},
+			onfinish: function() {
+				App.setSnd(null);
+				$el.attr('data-state', 'paused');
+			},
+			onpause: function() {
+				App.setSnd(null);
+				$el.attr('data-state', 'paused');
+			},
+			onplay: function() {
+				App.setSnd(snd);
+				$el.attr('data-state', 'playing');
+			},
+			onresume: function() {
+				App.setSnd(snd);
+				$el.attr('data-state', 'playing');
+			},
+			onstop: function() {
+				App.setSnd(null);
+				$el.attr('data-state', 'paused');
+			}
 		});
+
+		self.snd = snd;
+
+		cb(snd);
 	}
 
 });
